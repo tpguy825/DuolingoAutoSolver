@@ -262,14 +262,14 @@ function solve() {
             }
         }
 
-        if (document.querySelectorAll('[data-test="challenge-tap-token"]').length > 0) {
+        if (document.querySelectorAll('[data-test$="challenge-tap-token"]').length > 0) {
             // Click the first element
             if (window.sol.pairs) {
-                let nl = document.querySelectorAll('[data-test="challenge-tap-token"]');
-                if (document.querySelectorAll('[data-test="challenge-tap-token-text"]').length == document.querySelectorAll('[data-test="challenge-tap-token"]').length) {
+                let nl = document.querySelectorAll('[data-test$="challenge-tap-token"]');
+                if (document.querySelectorAll('[data-test$="challenge-tap-token-text"]').length == document.querySelectorAll('[data-test$="challenge-tap-token"]').length) {
                     window.sol.pairs.forEach((pair) => {
                         for (let i = 0; i < nl.length; i++) {
-                            const nlInnerText = nl[i].querySelector('[data-test="challenge-tap-token-text"]').innerText.toLowerCase().trim();
+                            const nlInnerText = nl[i].querySelector('[data-test$="challenge-tap-token-text"]').innerText.toLowerCase().trim();
                             if (
                                 (
                                     nlInnerText == pair.learningToken.toLowerCase().trim() ||
@@ -284,9 +284,10 @@ function solve() {
                 }
             } else {
                 let clicked = {}
-                let nl = document.querySelectorAll('[data-test="challenge-tap-token"]');
+                let nl = document.querySelectorAll('[data-test$="challenge-tap-token"]');
                 window.sol.correctIndices.forEach(index => {
-                    let correctAnswer = window.sol.correctTokens[index];
+                    let choices = (i) => (window.sol.correctTokens ? window.sol.correctTokens[i] : window.sol.choices[i].text);
+                    let correctAnswer = choices(index);
                     for (let i = 0; i < nl.length; i++) {
                         if ((nl[i].innerText).toLowerCase().trim() == correctAnswer.toLowerCase().trim() && !nl[i].disabled && !clicked[i]) {
                             clicked[i] = 1;
@@ -301,7 +302,6 @@ function solve() {
         }
 
         if (document.querySelectorAll('[data-test="challenge-text-input"]').length > 0) {
-
             let elm = document.querySelectorAll('[data-test="challenge-text-input"]')[0];
             let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
             nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : (window.sol.displayTokens ? window.sol.displayTokens.find(t => t.isBlank).text : window.sol.prompt));
