@@ -289,7 +289,7 @@ function solve() {
                     let choices = (i) => (window.sol.correctTokens ? window.sol.correctTokens[i] : window.sol.choices[i].text);
                     let correctAnswer = choices(index);
                     for (let i = 0; i < nl.length; i++) {
-                        if ((nl[i].innerText).toLowerCase().trim() == correctAnswer.toLowerCase().trim() && !nl[i].disabled && !clicked[i]) {
+                        if ((nl[i].innerText).toLowerCase().trim() == correctAnswer.toLowerCase().trim() && !nl[i].ariaDisabled && !clicked[i]) {
                             clicked[i] = 1;
                             nl[i].click();
                             break;
