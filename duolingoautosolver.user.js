@@ -110,7 +110,7 @@ function addButtons() {
     }
 }
 
-setInterval(addButtons, 3000);
+setInterval(addButtons, 1000);
 
 function solving() {
     if (intervalId) {
@@ -137,14 +137,23 @@ function pauseSolving() {
     intervalId = undefined;
 }
 
+let previoussol = {};
+
 function solve() {
     try {
         window.sol = FindReact(document.getElementsByClassName('_3FiYg')[0]).props.currentChallenge
-    } catch {
+        const acc = Object.entries(window.sol).map(([k, v]) => {
+            if (previoussol[k] == v) return 1;
+            return 0;
+        })
+        if (acc.reduce((a, b) => a + b) / acc.length > 0.9) throw new Error("encouragement screen detected")
+        previoussol = window.sol;
+    } catch (e) {
         let next = document.querySelector('[data-test="player-next"]');
         if (next) {
             next.click();
         }
+        console.error(e)
         return;
     }
     if (!window.sol) {
@@ -182,8 +191,8 @@ function solve() {
                     if (window.sol.correctSolutions[0].startsWith(window.sol.articles[i])) {
                         Array.from(document.querySelectorAll('[data-test="challenge-choice"]'))
                             .find((elm) =>
-                                elm.querySelector('[data-test="challenge-judge-text"]').innerText == window.sol.articles[i]
-                            ).click();
+                                  elm.querySelector('[data-test="challenge-judge-text"]').innerText == window.sol.articles[i]
+                                 ).click();
                         article = window.sol.articles[i];
                         break;
                     }
@@ -216,15 +225,31 @@ function solve() {
             btn.click();
         }
 
+        if (window.sol.type == "tapComplete") {
+            const bank = document.querySelector('[data-test="word-bank"]')
+            const options = Array.from(bank.querySelectorAll('div')).map(op => op.querySelector("span > button"))
+            const correct = window.sol.correctIndices;
+            function click(answer) {
+                const item = options.find(op => op.innerText == window.sol.choices[answer].text)
+                if (item.click) item.click()
+                if (item) options.splice(options.indexOf(item))
+            }
+            for (let i = 0; i < correct.length; i++) {
+                setTimeout(() => click(correct[i]), 50 * i)
+            }
+        }
+
         if (window.sol.type == 'listenMatch') {
-            let nl = document.querySelectorAll('[data-test="challenge-tap-token"]');
+            let nl = document.querySelectorAll('[data-test="new-challenge-tap-token"]');
             window.sol.pairs.forEach((pair) => {
                 for (let i = 0; i < nl.length; i++) {
                     let nlInnerText;
                     if (nl[i].querySelectorAll('[data-test="challenge-tap-token-text"]').length > 1) {
                         nlInnerText = nl[i].querySelector('[data-test="challenge-tap-token-text"]').innerText.toLowerCase().trim();
                     } else {
-                        nlInnerText = FindSubReact(nl[i]).text.toLowerCase().trim();
+                        try{
+                            nlInnerText = FindSubReact(nl[i]).text.toLowerCase().trim();
+                        } catch {}
                     }
                     if (
                         (
@@ -237,6 +262,33 @@ function solve() {
                     }
                 }
             });
+        }
+
+        if (window.sol.type == "translate") {
+            const bank = document.querySelector('[data-test="word-bank"]')
+            if (bank){
+                const options = Array.from(bank.querySelectorAll('div')).map(op => op.querySelector("span > button"))
+            const correct = window.sol.correctTokens;
+            function click(answer) {
+                const item = options.find(op => op.innerText == answer)
+                if (item && item.click) item.click()
+                if (item) options.splice(options.indexOf(item), 1)
+            }
+            for (let i = 0; i < correct.length + 1; i++) {
+                if (i == correct.length) setTimeout(() => btn.click(), 50 * i)
+                setTimeout(() => click(correct[i]), 25 * i)
+            }} else {
+                            let elm = document.querySelectorAll('textarea[autocomplete="off"]')[0]
+
+            let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+            nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : window.sol.prompt);
+
+            let inputEvent = new Event('input', {
+                bubbles: true
+            });
+
+            elm.dispatchEvent(inputEvent);
+            }
         }
 
         if (window.sol.type == 'listenSpell') {
@@ -262,6 +314,22 @@ function solve() {
             }
         }
 
+        if (window.sol.type == "listenTap") {
+            let usekeyboard = document.querySelector('button[data-test="player-toggle-keyboard"]');
+            if (usekeyboard && usekeyboard.querySelector("span").innerText.toLowerCase() == "use keyboard") usekeyboard.click()
+            let elm = document.querySelector('textarea[autocomplete="off"]')
+
+            window.aaaa= elm
+            let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+            nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : window.sol.prompt);
+
+            let inputEvent = new Event('input', {
+                bubbles: true
+            });
+
+            elm.dispatchEvent(inputEvent);
+        }
+
         if (document.querySelectorAll('[data-test$="challenge-tap-token"]').length > 0) {
             // Click the first element
             if (window.sol.pairs) {
@@ -283,7 +351,8 @@ function solve() {
                     });
                 }
             } else {
-                let clicked = {}
+                try{
+                    let clicked = {}
                 let nl = document.querySelectorAll('[data-test$="challenge-tap-token"]');
                 window.sol.correctIndices.forEach(index => {
                     let choices = (i) => (window.sol.correctTokens ? window.sol.correctTokens[i] : window.sol.choices[i].text);
@@ -296,6 +365,7 @@ function solve() {
                         }
                     }
                 });
+                } catch (e) {}
             }
             // Click the solve button
             btn.click();
@@ -312,8 +382,8 @@ function solve() {
             elm.dispatchEvent(inputEvent);
         }
 
-        if (document.getElementsByTagName('textarea').length > 0) {
-            let elm = document.getElementsByTagName('textarea')[0]
+        if (document.querySelectorAll('textarea').length > 0) {
+            let elm = document.querySelector('textarea')
 
             let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
             nativeInputValueSetter.call(elm, window.sol.correctSolutions ? window.sol.correctSolutions[0] : window.sol.prompt);
@@ -323,6 +393,24 @@ function solve() {
             });
 
             elm.dispatchEvent(inputEvent);
+        }
+
+        if (window.sol.type == "partialReverseTranslate") {
+            const totype = window.sol.displayTokens.filter(t => t.isBlank).map(t => t.text).join("")
+            const div = document.querySelector('[data-test="challenge challenge-partialReverseTranslate"]')
+            const span = div.querySelector("span[contenteditable]")
+            const inputspan = div.querySelector("label > span[style]")
+            function type(span) {
+                span.innerText = totype
+            }
+            type(span)
+            type(inputspan)
+             let inputEvent = new Event('keydown', {
+                bubbles: true
+            });
+
+            span.dispatchEvent(inputEvent);
+            inputspan.dispatchEvent(inputEvent);
         }
 
         // Continue
