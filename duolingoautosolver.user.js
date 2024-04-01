@@ -16,7 +16,7 @@ function addButtons() {
     }
 
     let original = document.querySelectorAll('[data-test="player-next"]')[0];
-    let wrapper = document.getElementsByClassName("_10vOG")[0];
+    let wrapper = document.getElementById("session/PlayerFooter").children[0].children[1];
     if (original == undefined) {
         let startButton = document.querySelector('[data-test="start-button"]');
         if (startButton == undefined) {
@@ -137,15 +137,16 @@ let sol = null;
 
 function solve() {
     try {
-        sol = FindReact(document.getElementsByClassName("_3FiYg")[0]).props.currentChallenge;
+        sol = FindReact( document.getElementById("session/PlayerFooter").parentElement.parentElement.parentElement.children[1]).props.currentChallenge;
+
         sol = sol
         console.log(sol)
-//        const acc = Object.entries(sol).map(([k, v]) => {
-//            if (previoussol[k] == v) return 1;
-//            return 0;
-//        });
-//        if (acc.reduce((a, b) => a + b) / acc.length > 0.9) throw new Error("encouragement screen detected");
-//        previoussol = sol;
+        //        const acc = Object.entries(sol).map(([k, v]) => {
+        //            if (previoussol[k] == v) return 1;
+        //            return 0;
+        //        });
+        //        if (acc.reduce((a, b) => a + b) / acc.length > 0.9) throw new Error("encouragement screen detected");
+        //        previoussol = sol;
     } catch (e) {
         let next = document.querySelector('[data-test="player-next"]');
         if (next) {
@@ -301,14 +302,14 @@ function solve() {
                 console.log("options", options)
                 const correct = sol.correctTokens;
                 function click(answer) {
-                for (let i = 0; i < options.length; i++) {
-                    const item = options[i];
-                    if (item.innerText == answer) {
-                        if (item.click) item.click();
-                        options.splice(i, 1);
-                        break; // Assuming you want to exit the loop after finding and clicking the item
+                    for (let i = 0; i < options.length; i++) {
+                        const item = options[i];
+                        if (item.innerText == answer) {
+                            if (item.click) item.click();
+                            options.splice(i, 1);
+                            break; // Assuming you want to exit the loop after finding and clicking the item
+                        }
                     }
-                }
                 }
                 for (let i = 0; i < correct.length + 1; i++) {
                     if (i == correct.length) setTimeout(() => btn.click(), 50 * i);
