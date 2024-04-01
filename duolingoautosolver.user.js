@@ -16,7 +16,7 @@ function addButtons() {
     }
 
     let original = document.querySelectorAll('[data-test="player-next"]')[0];
-    let wrapper = document.getElementById("session/PlayerFooter").children[0].children[1];
+    let wrapper = document.getElementById("session/PlayerFooter").children[0].lastChild
     if (original == undefined) {
         let startButton = document.querySelector('[data-test="start-button"]');
         if (startButton == undefined) {
