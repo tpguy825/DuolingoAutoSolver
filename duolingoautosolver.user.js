@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://*.duolingo.com/*
 // @grant       GM_log
-// @version     1.0
+// @version     1.1
 // @author      -
 // @description 12/21/2020, 6:35:07 PM
 // ==/UserScript==
@@ -505,6 +505,7 @@ function solve() {
 
             span.dispatchEvent(inputEvent);
             inputspan.dispatchEvent(inputEvent);
+            console.log("Press space!!");
         }
 
         // Continue
@@ -519,7 +520,7 @@ function FindSubReact(dom, traverseUp = 0) {
 
 function FindReact(dom, traverseUp = 0) {
     const key = Object.keys(dom.parentElement).find((key) => key.startsWith("__reactProps$"));
-    return dom.parentElement[key].children[0]._owner.stateNode;
+    return dom.parentElement[key].children[0].props.children._owner.stateNode;
 }
 
 window.findReact = FindReact;
